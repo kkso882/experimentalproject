@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Free Cloud Phone</title>
+  <style>
+    body {margin:0;background:#000;color:#fff;font-family:sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh}
+    #screen {width:90%;height:60%;background:#111;display:block;margin-bottom:20px}
+    #lang,#authSection,button {margin:5px;padding:10px;border:none;border-radius:5px}
+    #authSection input {padding:8px;margin:5px}
+  </style>
+</head>
+<body>
+  <select id="lang">
+    <option value="en">English</option>
+    <option value="th">ไทย</option>
+    <option value="es">Español</option>
+    <option value="fr">Français</option>
+    <option value="de">Deutsch</option>
+    <option value="zh">中文</option>
+    <option value="ja">日本語</option>
+  </select>
+  <div id="authSection">
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button id="register">Register</button>
+    <button id="login">Login</button>
+  </div>
+  <canvas id="screen"></canvas>
+  <button id="start">Start Cloud Phone</button>
+
+  <script>
+    const messages={
+      en:{register:"Register",login:"Login",start:"Start Cloud Phone"},
+      th:{register:"สมัคร",login:"เข้าสู่ระบบ",start:"เริ่ม Cloud Phone"},
+      es:{register:"Registrar",login:"Iniciar sesión",start:"Iniciar Cloud Phone"},
+      fr:{register:"S'inscrire",login:"Connexion",start:"Démarrer Cloud Phone"},
+      de:{register:"Registrieren",login:"Anmelden",start:"Cloud Phone starten"},
+      zh:{register:"注册",login:"登录",start:"启动云手机"},
+      ja:{register:"登録",login:"ログイン",start:"クラウドフォン開始"}
+    };
+    const langSelect=document.getElementById('lang');
+    const registerBtn=document.getElementById('register');
+    const loginBtn=document.getElementById('login');
+    const startBtn=document.getElementById('start');
+    function setLang(l){registerBtn.textContent=messages[l].register;loginBtn.textContent=messages[l].login;startBtn.textContent=messages[l].start;}
+    langSelect.addEventListener('change',()=>setLang(langSelect.value));
+    setLang('en');
+
+    const canvas=document.getElementById('screen');
+    const ctx=canvas.getContext('2d');
+
+    startBtn.addEventListener('click',()=>{
+      const socket=new WebSocket('wss://your-server-url.com');
+      socket.binaryType='blob';
+      socket.onmessage=e=>{
+        const img=new Image();
+        img.src=URL.createObjectURL(e.data);
+        img.onload=()=>ctx.drawImage(img,0,0,canvas.width,canvas.height);
+      };
+      window.addEventListener('keydown',ev=>{
+        socket.send(JSON.stringify({type:'key',key:ev.key}));
+      });
+    });
+  </script>
+</body>
+</html>
